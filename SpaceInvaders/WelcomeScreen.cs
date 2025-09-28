@@ -60,7 +60,6 @@ namespace SpaceInvaders
 
             string playerName = "";
             string intro1 = "CAPTAIN: Greetings, Fighter Pilot. This is Captain Holt. I am the Commander of the Fleet.";
-            string intro2 = "CAPTAIN: What's your name?";
             string intro4 = "CAPTAIN: I have a new assignment for you. ";
             string intro5 = "CAPTAIN: We have detected a new fleet of Atrox invaders approaching towards Earth.";
             string intro6 = "CAPTAIN: Your job is to defend our home planet and kill the invaders.";
@@ -73,44 +72,37 @@ namespace SpaceInvaders
             }
 
             Console.SetCursorPosition(5, 10);
-            for (int i = 0; i < intro2.Length; i++)
-            {
-                Console.Write(intro2[i]);
-                Thread.Sleep(60);
-            }
-            Console.SetCursorPosition(5, 11);
-            playerName = Console.ReadLine();
-            string intro3 = "CAPTAIN: Welcome to our Battle Fortress, " + playerName + "!" + " Thank you for joining us.";
+            string intro3 = "CAPTAIN: Welcome to our Battle Fortress!" + " Thank you for joining us.";
 
-            Console.SetCursorPosition(5, 13);
+            Console.SetCursorPosition(5, 12);
             for (int i = 0; i < intro3.Length; i++)
             {
                 Console.Write(intro3[i]);
                 Thread.Sleep(60);
             }
 
-            Console.SetCursorPosition(5, 15);
+            Console.SetCursorPosition(5, 14);
             for (int i = 0; i < intro4.Length; i++)
             {
                 Console.Write(intro4[i]);
                 Thread.Sleep(60);
             }
 
-            Console.SetCursorPosition(5, 17);
+            Console.SetCursorPosition(5, 16);
             for (int i = 0; i < intro5.Length; i++)
             {
                 Console.Write(intro5[i]);
                 Thread.Sleep(60);
             }
 
-            Console.SetCursorPosition(5, 19);
+            Console.SetCursorPosition(5, 18);
             for (int i = 0; i < intro6.Length; i++)
             {
                 Console.Write(intro6[i]);
                 Thread.Sleep(60);
             }
             Thread.Sleep(1000);
-            Console.SetCursorPosition(5, 23);
+            Console.SetCursorPosition(5, 20);
             Console.WriteLine("Press any key if you are ready.");
             Console.ReadKey();
         }
