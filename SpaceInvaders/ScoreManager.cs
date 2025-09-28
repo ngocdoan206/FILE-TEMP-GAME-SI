@@ -4,22 +4,65 @@ using System.IO;
 
 namespace SpaceInvaders
 {
-    // Quản lý bảng điểm: thêm, hiển thị, đọc/ghi file, sort (Bubble Sort)
+    // Quản lý bảng điểm: thêm, hiển thị, đọc/ghi file, sort
     public static class ScoreManager
     {
         private static List<int> scores = new List<int>();
+        private const string FileName = "scores.txt";
 
         // Thêm điểm -> gọi khi game over
         public static void AddScore(int score)
         {
             scores.Add(score);
+            SaveScoreToFile(score); // lưu ngay điểm vừa đạt được
         }
 
-        // Hiển thị bảng điểm (có menu con: tìm kiếm, xóa, thống kê, xóa tất cả)
+        // Lưu 1 điểm mới (append, không ghi đè)
+        private static void SaveScoreToFile(int score)
+        {
+            try
+            {
+                using (StreamWriter sw = new StreamWriter(FileName, true)) // append
+                {
+                    sw.WriteLine(score);
+                }
+
+                // ✅ Tạo bản backup
+                File.Copy(FileName, FileName + ".bak", true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi khi lưu điểm: " + ex.Message);
+                Console.ReadKey(true);
+            }
+        }
+
+        // Tải toàn bộ điểm từ file vào list
+        private static void LoadScores()
+        {
+            scores.Clear();
+            if (!File.Exists(FileName)) return;
+
+            try
+            {
+                string[] lines = File.ReadAllLines(FileName);
+                foreach (var line in lines)
+                {
+                    if (int.TryParse(line.Trim(), out int s))
+                        scores.Add(s);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi khi đọc file: " + ex.Message);
+                Console.ReadKey(true);
+            }
+        }
+
+        // Hiển thị bảng điểm (có menu con)
         public static void ShowScores()
         {
-            LoadScoresFromFile("scores.txt", out List<int> loaded);
-            if (loaded != null && loaded.Count > 0) scores = loaded;
+            LoadScores();
 
             while (true)
             {
@@ -64,7 +107,7 @@ namespace SpaceInvaders
                     if (int.TryParse(Console.ReadLine(), out int idx))
                     {
                         RemoveScore(idx - 1);
-                        SaveScoresToFile("scores.txt");
+                        OverwriteFile();
                         Console.WriteLine("Đã xóa!");
                     }
                     Console.ReadKey(true);
@@ -75,17 +118,18 @@ namespace SpaceInvaders
                 }
                 else if (choice == "4")
                 {
-                    BubbleSortDescending(scores);
-                    SaveScoresToFile("scores.txt");
-                    Console.WriteLine("Đã sắp xếp theo điểm giảm dần!");
-                    for (int i = 0; i < scores.Count; i++)
-                        Console.WriteLine($"{i + 1}. {scores[i]} điểm");
+                    // Tạo 1 bản copy để sắp xếp, không ảnh hưởng danh sách gốc
+                    var sortedScores = new List<int>(scores);
+                    BubbleSortDescending(sortedScores);
+                    Console.WriteLine("=== Điểm sắp xếp giảm dần ===");
+                    for (int i = 0; i < sortedScores.Count; i++)
+                        Console.WriteLine($"{i + 1}. {sortedScores[i]} điểm");
                     Console.WriteLine("\nNhấn phím bất kỳ để quay lại...");
                     Console.ReadKey(true);
                 }
                 else if (choice == "5")
                 {
-                    ClearAllScores("scores.txt");
+                    ClearAllScores();
                     Console.WriteLine("Đã xóa toàn bộ bảng điểm!");
                     Console.ReadKey(true);
                 }
@@ -98,48 +142,23 @@ namespace SpaceInvaders
             }
         }
 
-        // Lưu toàn bộ scores ra file, tạo file .bak trước khi ghi đè
-        public static void SaveScoresToFile(string fileName)
+        // Ghi đè lại toàn bộ list vào file (dùng sau khi xóa hoặc sắp xếp)
+        private static void OverwriteFile()
         {
             try
             {
-                if (File.Exists(fileName))
-                {
-                    string backup = fileName + ".bak";
-                    File.Copy(fileName, backup, true);
-                }
-
-                using (StreamWriter sw = new StreamWriter(fileName, false))
+                using (StreamWriter sw = new StreamWriter(FileName, false)) // ghi đè
                 {
                     foreach (var s in scores)
                         sw.WriteLine(s);
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Lỗi khi lưu file: " + ex.Message);
-                Console.ReadKey(true);
-            }
-        }
 
-        // Đọc file scores -> out parameter
-        public static void LoadScoresFromFile(string fileName, out List<int> loadedScores)
-        {
-            loadedScores = new List<int>();
-            try
-            {
-                if (!File.Exists(fileName)) return;
-                string[] lines = File.ReadAllLines(fileName);
-                foreach (var line in lines)
-                {
-                    if (int.TryParse(line.Trim(), out int s))
-                        loadedScores.Add(s);
-                }
+                // ✅ Tạo bản backup
+                File.Copy(FileName, FileName + ".bak", true);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Lỗi khi đọc file: " + ex.Message);
-                Console.WriteLine("Nhấn phím bất kỳ để tiếp tục...");
+                Console.WriteLine("Lỗi khi ghi file: " + ex.Message);
                 Console.ReadKey(true);
             }
         }
@@ -181,23 +200,10 @@ namespace SpaceInvaders
         }
 
         // Xóa toàn bộ bảng điểm
-        private static void ClearAllScores(string fileName)
+        private static void ClearAllScores()
         {
             scores.Clear();
-            try
-            {
-                if (File.Exists(fileName))
-                {
-                    string backup = fileName + ".bak";
-                    File.Copy(fileName, backup, true);
-                }
-                File.WriteAllText(fileName, string.Empty);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Lỗi khi xóa file: " + ex.Message);
-                Console.ReadKey(true);
-            }
+            OverwriteFile();
         }
 
         // Thống kê số ván chơi, điểm cao nhất, điểm TB

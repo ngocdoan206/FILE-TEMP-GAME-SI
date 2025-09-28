@@ -12,9 +12,8 @@ namespace SpaceInvaders
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            
-            // load dữ liệu cũ trước khi vào menu
-            ScoreManager.LoadScoresFromFile("scores.txt", out _);
+
+            // Chỉ cần load player, ScoreManager tự xử lý file khi cần
             PlayerManager.LoadPlayersFromFile("players.txt");
 
             while (true)
@@ -77,8 +76,9 @@ namespace SpaceInvaders
                 if (state.CheckGameOver())
                 {
                     RenderGameOverScreen(state);
-                    ScoreManager.AddScore(state.GameScore); // lưu điểm vào bảng điểm
-                    ScoreManager.SaveScoresToFile("scores.txt"); // ghi file
+
+                    // ✅ chỉ cần dòng này, ScoreManager tự lưu vào file
+                    ScoreManager.AddScore(state.GameScore);
 
                     var key = Console.ReadKey(true).Key;
 
@@ -170,22 +170,22 @@ namespace SpaceInvaders
             Console.SetCursorPosition(28, 20);
             Console.Write(String.Format("Your Score: {0}", state.GameScore));
 
-    //  Thêm nhập tên tại đây
+            //  Thêm nhập tên tại đây
             Console.SetCursorPosition(25, 22);
             Console.Write("Nhập tên của bạn: ");
             string playerName = Console.ReadLine();
             if (string.IsNullOrWhiteSpace(playerName))
-            playerName = "Người chơi ẩn danh";
+                playerName = "Người chơi ẩn danh";
 
-    // Lưu vào PlayerManager
+            // Lưu vào PlayerManager
             PlayerManager.AddGame(playerName, state.GameScore);
             PlayerManager.SavePlayersToFile("players.txt");
-    //  Quan trọng: từ đây menu "Xem Top 10" sẽ có dữ liệu
+            //  Quan trọng: từ đây menu "Xem Top 10" sẽ có dữ liệu
 
-    Thread.Sleep(500);
-    Console.SetCursorPosition(15, 32);
-    Console.Write("Press Enter key to play again. Press Q to quit the game.");
-}
+            Thread.Sleep(500);
+            Console.SetCursorPosition(15, 32);
+            Console.Write("Press Enter key to play again. Press Q to quit the game.");
+        }
 
         static void RenderWelcomeScreen()
         {
